@@ -1,0 +1,9 @@
+# Angular junk
+node_modules/
+dist/
+
+# .NET junk
+bin/
+obj/
+.vs/
+*.user

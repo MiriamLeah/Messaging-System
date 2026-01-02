@@ -1,0 +1,35 @@
+﻿using System.Collections.Concurrent;
+using WebApplication1.Models;
+
+namespace WebApplication1.Repository
+{
+
+    public interface IMessagesRepository
+    {
+        Task<IReadOnlyList<Message>> GetAllMessages();
+        Task AddMessage(Message message);
+    }
+    public class MessagesRepository : IMessagesRepository
+    {
+        // This implementation is a mock for the database. In production, this would connect to the DB.
+        private readonly ConcurrentBag<Message> _messages = new();
+        private int _currentId = 0;
+        public Task<IReadOnlyList<Message>> GetAllMessages()
+        {
+            var snapshot = _messages.ToArray();
+
+            IReadOnlyList<Message> ordered = snapshot
+                .OrderBy(m => m.Timestamp) 
+                .ToList();
+
+            return Task.FromResult(ordered);
+        }
+
+        public Task AddMessage(Message message)
+        {
+            message.Id = Interlocked.Increment(ref _currentId);
+            _messages.Add(message);
+            return Task.CompletedTask;
+        }
+    }
+}

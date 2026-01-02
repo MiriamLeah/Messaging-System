@@ -1,0 +1,27 @@
+<div class="chat-container">
+
+
+  <div class="messages-list" #scrollContainer>
+    <div *ngFor="let msg of messages" class="message-card">
+        
+        <div class="message-content">
+          {{ msg.content }}
+        </div>
+        
+        <div class="message-info">
+          <span class="date">{{ msg.timestamp | date:'HH:mm dd/MM/yyyy' }}</span>
+        </div>
+
+    </div>
+  </div>
+
+  <div class="input-area">
+    <input 
+      type="text" 
+      [(ngModel)]="newMessage" 
+      (keyup.enter)="send()"        
+    />
+    <button (click)="send()">Send</button>
+  </div>
+
+</div>

@@ -1,0 +1,62 @@
+﻿using System.Collections.Generic;
+using WebApplication1.Models;
+using WebApplication1.Repository;
+
+namespace WebApplication1.Services
+{
+
+    public interface IMessagesService
+    {
+        Task<IReadOnlyList<MessageDto>> GetAllMessages();
+        Task AddMessage(string content, string senderUserId);
+    }
+    public class MessagesService : IMessagesService
+    {
+        private readonly IMessagesRepository _repo;
+
+        public MessagesService(IMessagesRepository repo)
+        {
+            _repo = repo;
+        }
+
+        public async Task<IReadOnlyList<MessageDto>> GetAllMessages()
+        {
+            IReadOnlyList<Message> messages = await _repo.GetAllMessages();
+            var dtos = messages
+                .OrderBy(m => m.Timestamp) 
+                .Select(m => new MessageDto
+                {
+                    Content = m.Content,
+                    Timestamp = m.Timestamp,
+                    
+                })
+                .ToList();
+
+            return dtos;
+        }
+       
+
+        public async Task AddMessage(string content ,string senderUserId)
+        {
+            if (string.IsNullOrWhiteSpace(senderUserId))
+                throw new ArgumentException("Missing sender user id");
+
+            if (string.IsNullOrWhiteSpace(content))
+                throw new ArgumentException("Message content is empty");
+
+            content = content.Trim();
+
+
+            var msg = new Message
+            {
+                Content = content,
+                SenderId = senderUserId,
+                Timestamp = DateTime.UtcNow
+            };
+
+             await _repo.AddMessage(msg);
+        }
+
+        
+    }
+}

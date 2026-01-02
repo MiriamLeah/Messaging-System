@@ -1,0 +1,11 @@
+<div class="login-container">
+  
+  <div class="form-group">
+    <label for="uid"> Enter TZ:</label>
+    <input id="uid" type="text" maxlength="9" (keypress)="onlyNumbers($event)" [(ngModel)]="userId" />
+  </div>
+
+  <button (click)="onLogin()" [disabled]="userId.length < 9" >Continue</button>
+  
+  <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
+</div>
