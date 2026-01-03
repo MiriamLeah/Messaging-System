@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.SignalR;
+using System.Collections.Generic;
+using WebApplication1.Hubs;
 using WebApplication1.Models;
 using WebApplication1.Repository;
 
@@ -13,24 +15,25 @@ namespace WebApplication1.Services
     public class MessagesService : IMessagesService
     {
         private readonly IMessagesRepository _repo;
+        private readonly IHubContext<ChatHub> _hubContext;
 
-        public MessagesService(IMessagesRepository repo)
+        public MessagesService(IMessagesRepository repo ,  IHubContext<ChatHub> hubContext)
         {
             _repo = repo;
+            _hubContext = hubContext;
         }
 
         public async Task<IReadOnlyList<MessageDto>> GetAllMessages()
         {
             IReadOnlyList<Message> messages = await _repo.GetAllMessages();
             var dtos = messages
-                .OrderBy(m => m.Timestamp) 
-                .Select(m => new MessageDto
-                {
-                    Content = m.Content,
-                    Timestamp = m.Timestamp,
-                    
-                })
-                .ToList();
+            .Select(m => new MessageDto
+            {
+                Id = m.Id,
+                Content = m.Content,
+                Timestamp = m.Timestamp,
+            })
+            .ToList();
 
             return dtos;
         }
@@ -54,7 +57,14 @@ namespace WebApplication1.Services
                 Timestamp = DateTime.UtcNow
             };
 
-             await _repo.AddMessage(msg);
+            var msgDto = new MessageDto
+            {                
+                Content = msg.Content,
+                Timestamp = msg.Timestamp
+            };
+
+            await _repo.AddMessage(msg);
+            await _hubContext.Clients.All.SendAsync("ReceiveMessage", msgDto);
         }
 
         

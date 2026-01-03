@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using WebApplication1.Services;
+
 
 namespace WebApplication1.Controllers
 {
@@ -18,6 +20,7 @@ namespace WebApplication1.Controllers
         public record LoginResponse(string Token);
 
         [HttpPost("login")]
+        [EnableRateLimiting("LoginPolicy")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
             if (request == null || string.IsNullOrWhiteSpace(request.UserId))

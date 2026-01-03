@@ -1,6 +1,7 @@
-import { Component, OnInit, OnDestroy, inject, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
 import { MessageService } from '../../services/message.service';
 import { Message } from '../../models/message.model';
 
@@ -12,62 +13,45 @@ import { Message } from '../../models/message.model';
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.css',
 })
-export class ChatComponent implements OnInit, OnDestroy ,AfterViewChecked {
+export class ChatComponent implements OnInit, OnDestroy {
 
   private messageService = inject(MessageService);
-@ViewChild('scrollContainer') private scrollContainer!: ElementRef;
+  @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
+  
 
   messages: Message[] = [];
   newMessage: string = '';
-  intervalId: any; 
+ private messagesSub!: Subscription;
 
-  ngOnInit() {
- 
-    this.loadMessages();
+ngOnInit() {
+    this.messageService.startConnection();
+    this.messageService.getMessages();
 
-   
-    this.intervalId = setInterval(() => {
-      this.loadMessages();
-    }, 3000);
+    this.messagesSub = this.messageService.messages$.subscribe(msgs => {
+      this.messages = msgs; 
+      setTimeout(() => this.scrollToBottom(), 50);
+    });
   }
 
-
-  ngAfterViewChecked() {        
-    this.scrollToBottom();        
-  } 
-
+ngOnDestroy() {
+    this.messageService.stopConnection();
+    
+    if (this.messagesSub) {
+      this.messagesSub.unsubscribe();
+    }
+  }
   scrollToBottom(): void {
     try {
       this.scrollContainer.nativeElement.scrollTop = this.scrollContainer.nativeElement.scrollHeight;
     } catch(err) { }                 
   }
 
-  ngOnDestroy() {
-   
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
-    }
-  }
-
-  loadMessages() {
-    this.messageService.getMessages().subscribe({
-      next: (data) => {
-        this.messages = data;
-      },
-      error: (err) => {
-        console.error('Error fetching messages', err);
-      }
-    });
-  }
-
   send() {
- 
     if (!this.newMessage.trim()) return;
 
     this.messageService.sendMessage(this.newMessage).subscribe({
       next: () => {
         this.newMessage = '';
-        this.loadMessages(); 
       },
       error: (err) => console.error('Error sending message', err)
     });

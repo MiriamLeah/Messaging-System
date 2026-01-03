@@ -12,7 +12,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
 
   let requestToHandle = req;
-console.log('Sending token:', token);
+
   if (token) {  
     requestToHandle = req.clone({
       setHeaders: {
@@ -34,7 +34,7 @@ console.log('Sending token:', token);
       }
 
       if (err.status === 429) {        
-        alert('נשלחו יותר מדי בקשות. המערכת עמוסה, נא להמתין מספר שניות ולנסות שוב.');
+        alert('To many request were sent , please wait a fiew minutes');
         console.warn('Rate limit exceeded');
       }
      
