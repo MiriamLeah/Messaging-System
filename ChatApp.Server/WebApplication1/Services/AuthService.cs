@@ -40,6 +40,8 @@ namespace WebApplication1.Services
             return CreateToken(userId);
         }
 
+        // Note: In a production system, use two tokens (Access and Refresh) 
+        // to balance security and user experience across multiple servers.
         private string CreateToken(string userId)
         {
             var secret = _config["Jwt:Key"]!;

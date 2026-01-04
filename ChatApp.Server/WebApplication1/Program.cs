@@ -82,6 +82,31 @@ builder.Services.AddAuthentication(options =>
      };
  });
 
+//// Note: To support multiple servers, the IP and hit count are stored 
+//// in Redis, ensuring synchronized rate limiting across the entire 
+//// distributed cluster.
+
+//using StackExchange.Redis;
+//using RedisRateLimiting;
+
+//var redisConnection = ConnectionMultiplexer.Connect("your_redis_connection_string");
+
+//builder.Services.AddRateLimiter(options =>
+//{
+//    options.AddRedisFixedWindowLimiter("LoginPolicy", opt =>
+//    {
+//        opt.ConnectionMultiplexerFactory = () => redisConnection;
+//        opt.PermitLimit = 20;
+//        opt.Window = TimeSpan.FromSeconds(1);
+
+//        opt.PartitionKeyExtractor = (httpContext) =>
+//            httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+//    });
+
+//    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+//});
+
+
 builder.Services.AddRateLimiter(options =>
 {
     options.AddPolicy("LoginPolicy", httpContext =>

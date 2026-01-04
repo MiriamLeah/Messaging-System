@@ -19,7 +19,6 @@ namespace WebApplication1.Repository
         {
             var snapshot = _messages.ToArray();
 
-            // החזרת כל ההודעות ללא סינון, רק מיון לפי ה-ID
             IReadOnlyList<Message> ordered = snapshot
                 .OrderBy(m => m.Id)
                 .ToList();
