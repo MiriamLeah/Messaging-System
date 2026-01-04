@@ -28,7 +28,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       
       
       if (err.status === 401) {
-        console.log('Token expired! Redirecting to login...');        
+        console.log('Authentication failed: User is not logged in or session has expired.');        
         localStorage.removeItem('auth_token');        
         router.navigate(['/login']);
       }

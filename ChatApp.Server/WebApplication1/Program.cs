@@ -17,7 +17,23 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(hubOptions =>
+{
+    // 1. ClientTimeoutInterval:
+    // The duration the server waits for a heartbeat from the client before disconnecting.
+    // Default: 30 seconds. Increased to 60 seconds to account for latency between countries.
+    hubOptions.ClientTimeoutInterval = TimeSpan.FromSeconds(60);
+
+    // 2. KeepAliveInterval:
+    // How often the server sends a "ping" to the client to ensure the connection is open.
+    // Default: 15 seconds. Kept to maintain connection stability without overloading the network.
+    hubOptions.KeepAliveInterval = TimeSpan.FromSeconds(15);
+
+    // 3. HandshakeTimeout:
+    // The maximum time allowed for the initial handshake process.
+    // International connections may require more time due to network delays.
+    hubOptions.HandshakeTimeout = TimeSpan.FromSeconds(30);
+});
 /* * SCALABILITY NOTE (Multiple Servers / Countries):
  * In a production environment with multiple servers across different regions, 
  * SignalR requires a "Backplane" to synchronize messages between servers.
@@ -33,6 +49,9 @@ builder.Services.AddSignalR();
  * });
   
  */
+
+
+//Should be scoped - singltone only for the "matala"
 builder.Services.AddSingleton<IUserRepository, UserRepository>();
 builder.Services.AddSingleton<IMessagesRepository, MessagesRepository>();
 

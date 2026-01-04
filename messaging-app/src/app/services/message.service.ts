@@ -44,15 +44,24 @@ export class MessageService {
 
     
   
+
+
   getMessages(): void {
-    this.http.get<Message[]>(this.apiUrl).subscribe(msgs => {
+  this.http.get<Message[]>(this.apiUrl).subscribe({
+    next: (msgs) => {
       this.messagesSubject.next(msgs);
-    });
-  }
+    },
+    error: (err) => {
+      console.error('Failed to load messages', err);
+    }
+  });
+}
 
   sendMessage(content: string): Observable<any> {
     return this.http.post(this.apiUrl, { content });
   }
+
+ 
 
   public stopConnection() {
     if (this.hubConnection) this.hubConnection.stop();

@@ -29,7 +29,6 @@ namespace WebApplication1.Services
             var dtos = messages
             .Select(m => new MessageDto
             {
-                Id = m.Id,
                 Content = m.Content,
                 Timestamp = m.Timestamp,
             })
@@ -56,6 +55,7 @@ namespace WebApplication1.Services
                 SenderId = senderUserId,
                 Timestamp = DateTime.UtcNow
             };
+            await _repo.AddMessage(msg);
 
             var msgDto = new MessageDto
             {                
@@ -63,7 +63,6 @@ namespace WebApplication1.Services
                 Timestamp = msg.Timestamp
             };
 
-            await _repo.AddMessage(msg);
             await _hubContext.Clients.All.SendAsync("ReceiveMessage", msgDto);
         }
 
